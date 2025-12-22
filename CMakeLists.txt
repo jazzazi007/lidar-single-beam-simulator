@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(SDL2 REQUIRED)
 
 
-add_executable(lidar_sim src/lidar_single_beam.cpp)
+add_executable(lidar_sim src/lidar_single_beam.cpp
+                       src/main.cpp)
 
 
 target_include_directories(lidar_sim PRIVATE include)

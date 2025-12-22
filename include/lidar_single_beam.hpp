@@ -1,7 +1,6 @@
 #ifndef LIDAR_SINGLE_BEAM_HPP
 #define LIDAR_SINGLE_BEAM_HPP
 
-#include <algorithm>
 #include "lidar_env.hpp" // Assuming this defines World and Pose
 
 
@@ -20,11 +19,16 @@ public:
     };
 
     // The core "update" function
-   // std::vector<Reading> generateScan(const World& world, const Pose& sensorPose);
+    std::vector<Reading> generateScan(long long currentTimeNs, double angle, double range, double intensity);
+    double getBeamMaxRange() const { return beamMaxRange; }
+    double getBeamMinRange() const { return beamMinRange; }
+    double getBeamResolution() const { return beamResolution; }
+    double getFrequency() const { return beamFrequency;}
 
 private:
-    double beamMaxRange = 100.0;
-    double beamMinRange = 0.2; // Based on your earlier spec
+    float beamMaxRange = 100.0f;
+    float beamMinRange = 0.2f; // Based on your earlier spec
+    float beamResolution = 0.3f;
     int numberOfBeams;
     double FOVAngle; 
     int beamFrequency; 
@@ -43,6 +47,18 @@ Lidar::Lidar(int numBeams, double fov, int frequency)
             beamAngles.push_back(startAngle + i * angleIncrement);
         }
     }
+}
+
+std::vector<Lidar::Reading> Lidar::generateScan(long long currentTimeNs, double angle, double range, double intensity)
+{
+    std::vector<Lidar::Reading> data;
+    Lidar::Reading reading;
+    reading.timestamp_ns = currentTimeNs;
+    reading.angle = angle;
+    reading.distance = range;
+    reading.intensity = intensity;
+    data.push_back(reading);
+    return data;
 }
 
 #endif
