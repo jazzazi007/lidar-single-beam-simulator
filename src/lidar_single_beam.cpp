@@ -1,6 +1,6 @@
 #include "../include/lidar_single_beam.hpp"
 
-LidarEnv::LidarEnv(Lidar &lidar): lidar(lidar)
+LidarEnv::LidarEnv(Lidar *lidar): lidar(lidar)
 {
     SDL_Init(SDL_INIT_VIDEO);
     this->window = SDL_CreateWindow("LiDAR Sim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
@@ -8,16 +8,15 @@ LidarEnv::LidarEnv(Lidar &lidar): lidar(lidar)
      this->lidar = lidar;
 }
 
-void LidarEnv::startRenderLoop(Lidar &lidar) 
+void LidarEnv::startRenderLoop(Lidar *lidar) 
 {
     bool running = true;
     double angle = 0;
-    const float range = lidar.getBeamMaxRange();
+    const float range = lidar->getBeamMaxRange();
     const float intensity = 1.0f;
     const double timestamp_ns = 0;
-    const float frequency = lidar.getFrequency();
-    const float resolution = lidar.getBeamResolution();
-
+    const float frequency = lidar->getFrequency();
+    const float resolution = lidar->getBeamResolution();
     SDL_Rect Obj;
     Obj.x = 150;
     Obj.y = 150;

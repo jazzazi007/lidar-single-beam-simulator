@@ -7,16 +7,19 @@
 #include <iostream>
 #include <algorithm>
 #include <limits>
+#include "lidar_single_beam.hpp"
+
 
 #define WIDTH 800
 #define HEIGHT 600
 
 struct Vec2 { double x, y; };
+class Lidar;
 
 class LidarEnv 
 {
     public:
-        LidarEnv(Lidar &lidar);
+        LidarEnv(Lidar *lidar = nullptr);
 
         ~LidarEnv(){
             SDL_DestroyRenderer(this->renderer);
@@ -24,12 +27,12 @@ class LidarEnv
             SDL_Quit();
         };
 
-        void startRenderLoop(Lidar &lidar);
+        void startRenderLoop(Lidar *lidar);
         
     private:
         SDL_Window* window;
         SDL_Renderer* renderer;
-        Lidar lidar;
+        Lidar *lidar;
 
 
 };

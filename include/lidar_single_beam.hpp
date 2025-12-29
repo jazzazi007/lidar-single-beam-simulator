@@ -2,6 +2,8 @@
 #define LIDAR_SINGLE_BEAM_HPP
 
 #include "lidar_env.hpp" // Assuming this defines World and Pose
+#include <vector>
+
 
 
 class Lidar {
