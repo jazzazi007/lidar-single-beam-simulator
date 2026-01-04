@@ -68,11 +68,6 @@ void LidarEnv::startRenderLoop(Lidar *lidar)
     const float frequency = lidar->getFrequency();
     const float resolution = lidar->getBeamResolution();
     bool errorFlag = false;
-    SDL_Rect Obj;
-    Obj.x = 150;
-    Obj.y = 150;
-    Obj.w = 75;
-    Obj.h = 75;
 
     while (running) {
         SDL_Event event;
