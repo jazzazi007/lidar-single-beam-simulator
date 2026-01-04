@@ -4,13 +4,18 @@
 #include "lidar_env.hpp" // Assuming this defines World and Pose
 #include <vector>
 
+#include <SDL2/SDL.h>
+#include <cmath>
+#include <iostream>
+#include <algorithm>
+#include <limits>
 
 
 class Lidar {
 public:
     // Pass specs via constructor to make the class reusable for different sensors
     Lidar(int numBeams = 1, double fov = 10.0, int frequency = 400);
-    ~Lidar() = default; // std::vector handles its own memory
+    ~Lidar(){};
 
     // Structure to hold a single "reading"
     struct Reading {
@@ -36,31 +41,5 @@ private:
     int beamFrequency; 
     std::vector<double> beamAngles; 
 };
-
-Lidar::Lidar(int numBeams, double fov, int frequency) 
-    : numberOfBeams(numBeams), FOVAngle(fov), beamFrequency(frequency) {
-    
-    if (numberOfBeams <= 1) {
-        beamAngles.push_back(0.0);
-    } else {
-        double angleIncrement = FOVAngle / (numberOfBeams - 1);
-        double startAngle = -FOVAngle / 2.0;
-        for (int i = 0; i < numberOfBeams; ++i) {
-            beamAngles.push_back(startAngle + i * angleIncrement);
-        }
-    }
-}
-
-std::vector<Lidar::Reading> Lidar::generateScan(long long currentTimeNs, double angle, double range, double intensity)
-{
-    std::vector<Lidar::Reading> data;
-    Lidar::Reading reading;
-    reading.timestamp_ns = currentTimeNs;
-    reading.angle = angle;
-    reading.distance = range;
-    reading.intensity = intensity;
-    data.push_back(reading);
-    return data;
-}
 
 #endif

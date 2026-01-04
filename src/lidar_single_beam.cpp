@@ -1,4 +1,5 @@
 #include "../include/lidar_single_beam.hpp"
+#include "../include/lidar_env.hpp"
 
 LidarEnv::LidarEnv(Lidar *lidar): lidar(lidar)
 {
@@ -6,6 +7,32 @@ LidarEnv::LidarEnv(Lidar *lidar): lidar(lidar)
     this->window = SDL_CreateWindow("LiDAR Sim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
      this->renderer= SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
      this->lidar = lidar;
+}
+
+std::vector<Lidar::Reading> Lidar::generateScan(long long currentTimeNs, double angle, double range, double intensity)
+{
+    std::vector<Lidar::Reading> data;
+    Lidar::Reading reading;
+    reading.timestamp_ns = currentTimeNs;
+    reading.angle = angle;
+    reading.distance = range;
+    reading.intensity = intensity;
+    data.push_back(reading);
+    return data;
+}
+
+Lidar::Lidar(int numBeams, double fov, int frequency) 
+    : numberOfBeams(numBeams), FOVAngle(fov), beamFrequency(frequency) {
+    
+    if (numberOfBeams <= 1) {
+        beamAngles.push_back(0.0);
+    } else {
+        double angleIncrement = FOVAngle / (numberOfBeams - 1);
+        double startAngle = -FOVAngle / 2.0;
+        for (int i = 0; i < numberOfBeams; ++i) {
+            beamAngles.push_back(startAngle + i * angleIncrement);
+        }
+    }
 }
 
 void LidarEnv::startRenderLoop(Lidar *lidar) 
