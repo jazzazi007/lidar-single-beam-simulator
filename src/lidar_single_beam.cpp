@@ -92,16 +92,16 @@ void LidarEnv::startRenderLoop(Lidar *lidar)
 
         float dist = getRayDistance(origin, dir, obstacle, resolution, errorFlag);
         errorFlag = !errorFlag; // Toggle error for next beam
-        std::cout << "Distance: " << dist << std::endl;
         int endX = origin.x + static_cast<int>(range * cos(angle * M_PI / 180.0));
         int endY = origin.y + static_cast<int>(range * sin(angle * M_PI / 180.0));
-
+        
         if (dist > 0 && dist < range) {
             // We hit something! Draw a smaller beam and a point
             int hitX = origin.x + dir.x * dist;
             int hitY = origin.y + dir.y * dist;
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White point
             SDL_RenderDrawLine(renderer, origin.x, origin.y, hitX, hitY);
+            std::cout << "Distance: " << dist << std::endl;
         }
         else
         {
@@ -117,6 +117,6 @@ void LidarEnv::startRenderLoop(Lidar *lidar)
         if (angle >= 360) angle = 0;
 
         SDL_RenderPresent(this->renderer);
-        SDL_Delay((1/10.0) * 1000); // Control speed
+        SDL_Delay((1/frequency) * 1000); // Control speed
     }
 }
