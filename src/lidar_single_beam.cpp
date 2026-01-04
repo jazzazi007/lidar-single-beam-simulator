@@ -34,6 +34,29 @@ Lidar::Lidar(int numBeams, double fov, int frequency)
         }
     }
 }
+static float getRayDistance(Vec2 rayOrigin, Vec2 rayDir, SDL_Rect target, float resolution, bool errflag) {
+    double tMin = (target.x - rayOrigin.x) / rayDir.x;
+    double tMax = (target.x + target.w - rayOrigin.x) / rayDir.x;
+
+    
+    if (tMin > tMax) std::swap(tMin, tMax);
+    
+    double tyMin = (target.y - rayOrigin.y) / rayDir.y;
+    double tyMax = (target.y + target.h - rayOrigin.y) / rayDir.y;
+    
+    if (tyMin > tyMax) std::swap(tyMin, tyMax);
+    
+    // If intervals don't overlap, no hit
+    if ((tMin > tyMax) || (tyMin > tMax)) return -1.0f;
+    
+    if (tyMin > tMin) tMin = tyMin;
+    
+    if (errflag)
+        tMin += resolution;
+    else
+        tMin -= resolution;
+    return (tMin > 0) ? static_cast<float>(tMin) : -1.0f;
+}
 
 void LidarEnv::startRenderLoop(Lidar *lidar) 
 {
@@ -44,6 +67,7 @@ void LidarEnv::startRenderLoop(Lidar *lidar)
     const double timestamp_ns = 0;
     const float frequency = lidar->getFrequency();
     const float resolution = lidar->getBeamResolution();
+    bool errorFlag = false;
     SDL_Rect Obj;
     Obj.x = 150;
     Obj.y = 150;
@@ -55,28 +79,37 @@ void LidarEnv::startRenderLoop(Lidar *lidar)
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) running = false;
         }
-
-        // Clear screen (Black)
         SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255);
-        SDL_RenderClear(this->renderer);
+        SDL_RenderClear(this->renderer);       
 
-        // Calculate Beam End Point
-        int startX = 400, startY = 300;
-        int endX = startX + static_cast<int>(range * cos(angle * M_PI / 180.0));
-        int endY = startY + static_cast<int>(range * sin(angle * M_PI / 180.0));
+        SDL_Rect obstacle = { 400, 250, 50, 100 }; // A "wall" or "pole"
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green obstacle
+        SDL_RenderFillRect(renderer, &obstacle);
 
-        // Draw Beam (Red)
-        SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
-        SDL_RenderDrawLine(this->renderer, startX, startY, endX, endY);
+        // Calculate direction vector from angle
+        Vec2 dir = { cos(angle * M_PI / 180.0), sin(angle * M_PI / 180.0) };
+        Vec2 origin = { 500.0, 300.0 };
+
+        float dist = getRayDistance(origin, dir, obstacle, resolution, errorFlag);
+        errorFlag = !errorFlag; // Toggle error for next beam
+        std::cout << "Distance: " << dist << std::endl;
+        int endX = origin.x + static_cast<int>(range * cos(angle * M_PI / 180.0));
+        int endY = origin.y + static_cast<int>(range * sin(angle * M_PI / 180.0));
+
+        if (dist > 0 && dist < range) {
+            // We hit something! Draw a smaller beam and a point
+            int hitX = origin.x + dir.x * dist;
+            int hitY = origin.y + dir.y * dist;
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White point
+            SDL_RenderDrawLine(renderer, origin.x, origin.y, hitX, hitY);
+        }
+        else
+        {
+            SDL_SetRenderDrawColor(this->renderer, 255, 0, 0, 255);
+            SDL_RenderDrawLine(this->renderer, origin.x, origin.y, endX, endY);
+        } 
 
         SDL_RenderDrawRect(this->renderer, nullptr); // Draw border
-
-         SDL_SetRenderDrawColor( this->renderer, 0, 0, 255, 255 );
-
-    // Render rect
-        SDL_RenderFillRect( this->renderer, &Obj );
-
-        // Render the rect to the screen
         SDL_RenderPresent(this->renderer);
 
         // Update Angle (Simulating 400Hz rotation)
@@ -84,6 +117,6 @@ void LidarEnv::startRenderLoop(Lidar *lidar)
         if (angle >= 360) angle = 0;
 
         SDL_RenderPresent(this->renderer);
-        SDL_Delay(1); // Control speed
+        SDL_Delay((1/10.0) * 1000); // Control speed
     }
 }

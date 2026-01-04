@@ -4,16 +4,11 @@
 
 int main() 
 {
-    std::cout << "Starting LiDAR Single Beam Simulator" << std::endl;
-    
-    // Initialize the sensor with datasheet specs
-    // 1 beam, 10 deg FOV, 400 Hz
+    std::cout << "Starting LiDAR Single Beam Simulator" << std::endl;   
     Lidar lidar(1, 10, 400); 
-    
-    // Initialize the environment with the sensor
+    std::cout << "lidar Max range: " << lidar.getBeamMaxRange() << ", Min range: " << lidar.getBeamMinRange() << ", Resolution: " << lidar.getBeamResolution() << ", Frequency: " << lidar.getFrequency() << std::endl;
+    std::cout << "Starting LiDAR Env" << std::endl;
     LidarEnv env(&lidar);
-    
-    // Start the SDL2 window and physics loop
     env.startRenderLoop(&lidar);
 
     return 0;
