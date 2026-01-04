@@ -1,6 +1,7 @@
 # Single-Beam LiDAR Simulator
 
 An intermediate-level C++ LiDAR simulator developed for autonomous systems research. This project simulates a 905nm single-beam sensor, modeling physical constraints such as range, update frequency, and beam-object intersection using SDL2 for real-time visualization.
+This work simulates the basic parameters of a single beam lidar.
 
 ## 🚀 Features
 - **Accurate Sensor Modeling**: Based on real-world single-beam LiDAR datasheets.
